@@ -23,7 +23,7 @@ app.locals.io = io;
 
 let oldData = [];
 
-console.log('nocoService keys/type:', typeof nocoService, Object.keys(nocoService || {}));
+// console.log('nocoService keys/type:', typeof nocoService, Object.keys(nocoService || {}));
 
 
 
