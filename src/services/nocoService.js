@@ -1,3 +1,4 @@
+
 const axios = require("axios");
 
 const base = process.env.NOCO_BASE_URL;
@@ -6,10 +7,9 @@ const viewId = process.env.NOCO_VIEW_ID;
 const token = process.env.NOCO_API_KEY;
 
 const url = `${base}/api/v2/tables/${table}/records`;
-const today = new Date().toISOString().split("T")[0];
 
 // Single page fetcher
-async function fetchPage(offset = 0, limit = 1000) {
+async function fetchPage(offset = 0, limit = 1000, today) {
   const res = await axios.get(url, {
     params: {
       offset,
@@ -26,23 +26,25 @@ async function fetchPage(offset = 0, limit = 1000) {
 }
 
 async function fetchAll() {
+  const today = new Date().toISOString().split("T")[0];  // 🔥 NOW dynamic
+
   let limit = 1000;
 
   // Step 1: Fetch first page
-  const first = await fetchPage(0, limit);
+  const first = await fetchPage(0, limit, today);
   let total = first.pageInfo?.totalRows || first.list?.length || 0;
 
   console.log("Total Records:", total);
 
   let allData = [...first.list];
 
-  // Step 2: generate all needed offsets
+  // Step 2: generate offsets
   let tasks = [];
   for (let offset = limit; offset < total; offset += limit) {
-    tasks.push(fetchPage(offset, limit));
+    tasks.push(fetchPage(offset, limit, today));
   }
 
-  // Step 3: run in parallel (fastest)
+  // Step 3: run in parallel
   const results = await Promise.all(tasks);
 
   // Step 4: merge data
@@ -55,7 +57,6 @@ async function fetchAll() {
   return allData;
 }
 
-// IMPORTANT: export getRecords
 module.exports = {
   getRecords: fetchAll
 };
