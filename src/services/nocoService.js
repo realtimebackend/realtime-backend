@@ -1,5 +1,4 @@
-
-const axios = require("axios");
+const axios = require('axios');
 
 const base = process.env.NOCO_BASE_URL;
 const table = process.env.NOCO_TABLE;
@@ -7,6 +6,7 @@ const viewId = process.env.NOCO_VIEW_ID;
 const token = process.env.NOCO_API_KEY;
 
 const url = `${base}/api/v2/tables/${table}/records`;
+const FAST_API_URL = 'https://fastapi.qurvii.com/scan';
 
 // Single page fetcher
 async function fetchPage(offset = 0, limit = 1000, today) {
@@ -15,10 +15,10 @@ async function fetchPage(offset = 0, limit = 1000, today) {
       offset,
       limit,
       viewId,
-      where: `(scanned_timestamp,eq,exactDate,${today})`
+      where: `(scanned_timestamp,eq,exactDate,${today})`,
     },
     headers: {
-      "xc-token": token,
+      'xc-token': token,
     },
   });
 
@@ -26,7 +26,7 @@ async function fetchPage(offset = 0, limit = 1000, today) {
 }
 
 async function fetchAll() {
-  const today = new Date().toISOString().split("T")[0];  // 🔥 NOW dynamic
+  const today = new Date().toISOString().split('T')[0]; // 🔥 NOW dynamic
 
   let limit = 1000;
 
@@ -34,7 +34,7 @@ async function fetchAll() {
   const first = await fetchPage(0, limit, today);
   let total = first.pageInfo?.totalRows || first.list?.length || 0;
 
-  console.log("Total Records:", total);
+  console.log('Total Records:', total);
 
   let allData = [...first.list];
 
@@ -52,11 +52,22 @@ async function fetchAll() {
     allData.push(...r.list);
   }
 
-  console.log("Fetched:", allData.length);
+  console.log('Fetched:', allData.length);
 
   return allData;
 }
 
+async function scanRecord(payload) {
+  try {
+    const response = await axios.post(FAST_API_URL, payload);
+    const data = response.data;
+    return data;
+  } catch (error) {
+    throw new Error('Failed to scan record error ', error.message || 'Internal Error');
+  }
+}
+
 module.exports = {
-  getRecords: fetchAll
+  getRecords: fetchAll,
+  scanRecord,
 };
