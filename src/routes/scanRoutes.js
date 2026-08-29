@@ -1,43 +1,3 @@
-// const express = require('express');
-// const router = express.Router();
-// const nocoService = require('../services/nocoService');
-
-// // GET /api/scan
-// router.get('/scan', async (req, res) => {
-//   try {
-//     const data = await nocoService.getRecords();
-//     res.json({ success: true, data });
-//   } catch (err) {
-//     console.error('SCAN ROUTE ERROR:', err);
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Server Error',
-//       error: err.message,
-//     });
-//   }
-// });
-
-// // POST /api/scan
-// router.post('/scan', async (req, res) => {
-//   const { user_id, user_location_id, order_id } = req.body;
-//   const payload = {
-//     user_id,
-//     user_location_id,
-//     order_id,
-//   };
-//   try {
-//     const data = await nocoService.scanRecord(payload);
-//     res.json({ success: true, data });
-//   } catch (error) {
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Server Error',
-//       error: err.message,
-//     });
-//   }
-// });
-// module.exports = router;
-
 const express = require('express');
 const router = express.Router();
 const nocoService = require('../services/nocoService');
@@ -149,6 +109,17 @@ router.post('/scan', async (req, res) => {
       error: error.message || 'Internal Server Error',
     });
   }
+});
+
+router.get('/getUsers', async (req, res) => {
+  const data = await nocoService.getUsers();
+  res.json({
+    success: true,
+    data,
+    meta: {
+      timestamp: new Date().toISOString(),
+    },
+  });
 });
 
 module.exports = router;

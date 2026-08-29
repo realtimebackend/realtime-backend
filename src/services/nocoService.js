@@ -6,7 +6,7 @@ const viewId = process.env.NOCO_VIEW_ID;
 const token = process.env.NOCO_API_KEY;
 
 const url = `${base}/api/v2/tables/${table}/records`;
-const FAST_API_URL = 'https://fastapi.qurvii.com/scan';
+const FAST_API_URL = 'https://fastapi.qurvii.com';
 
 // Single page fetcher with optional date filter
 async function fetchPage(offset = 0, limit = 1000, dateFilter = null) {
@@ -90,11 +90,21 @@ async function fetchAll(date = null, endDate = null) {
 
 async function scanRecord(payload) {
   try {
-    const response = await axios.post(FAST_API_URL, payload);
+    const response = await axios.post(`${FAST_API_URL}/scan`, payload);
     const data = response.data;
     return data;
   } catch (error) {
     throw new Error('Failed to scan record error ' + (error.message || 'Internal Error'));
+  }
+}
+
+async function getUsers() {
+  try {
+    const response = await axios.get(`${FAST_API_URL}/getUsers`);
+    const data = response.data;
+    return data;
+  } catch (error) {
+    throw new Error('Failed to fetch employee records', +(error.message || 'Internal Error'));
   }
 }
 
@@ -104,4 +114,5 @@ module.exports = {
   fetchAll,
   fetchPage,
   buildDateFilter,
+  getUsers,
 };
